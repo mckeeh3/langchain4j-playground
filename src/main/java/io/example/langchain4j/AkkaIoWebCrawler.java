@@ -47,6 +47,7 @@ public class AkkaIoWebCrawler {
       var links = crawlPage(page);
       pagesToCrawl.addAll(links.stream()
           .filter(link -> !crawledPages.contains(link))
+          .filter(link -> !pagesToCrawl.contains(link))
           .toList());
     }
   }

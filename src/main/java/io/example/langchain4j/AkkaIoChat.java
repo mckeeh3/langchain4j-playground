@@ -73,11 +73,9 @@ public class AkkaIoChat {
 
     var response = chatService.chat(promptAugmented.toString());
 
-    System.out.println("========================================");
-    System.out.println("prompt: " + prompt);
-    System.out.println("promptAugmented: " + promptAugmented.toString());
-    System.out.println("========================================");
     System.out.println(response);
+
+    log.info("========================================");
     log.info("prompt: {}", prompt);
     relevant.forEach(match -> log.info("Score: {}, Title: {}",
         match.score(),
