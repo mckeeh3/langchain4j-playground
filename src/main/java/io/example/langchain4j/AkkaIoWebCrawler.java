@@ -54,7 +54,7 @@ public class AkkaIoWebCrawler {
   List<String> crawlPage(String url) {
     try {
       if (crawledPages.contains(url)) {
-        log.info("|=====> Already crawled: {}", url);
+        // log.info("|=====> Already crawled: {}", url);
         return List.of();
       }
       var start = System.nanoTime();
