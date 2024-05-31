@@ -1,6 +1,7 @@
 package io.example.langchain4j;
 
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,13 +53,19 @@ public class AkkaIoChat {
   }
 
   void chat(String prompt) {
+    var start = System.nanoTime();
     var queryEmbedding = embeddingModel.embed(prompt).content();
     var query = EmbeddingSearchRequest.builder()
         .queryEmbedding(queryEmbedding)
         .maxResults(5)
         .build();
     var relevant = embeddingStore.search(query).matches();
+    System.out.println("\nVector DB response: %s".formatted(formatNanoTime(System.nanoTime() - start)));
+    relevant.forEach(match -> {
+      System.out.println("%1.3f, %s".formatted(match.score(), match.embedded().metadata().getString("title")));
+    });
 
+    start = System.nanoTime();
     var promptAugmented = new StringBuffer();
     promptAugmented.append("""
         Please review the following reference material to help
@@ -71,9 +78,11 @@ public class AkkaIoChat {
         .append("\n\n"));
     promptAugmented.append(prompt);
 
+    start = System.nanoTime();
     var response = chatService.chat(promptAugmented.toString());
+    System.out.println("\nChat response: %s\n".formatted(formatNanoTime(System.nanoTime() - start)));
 
-    System.out.println(response);
+    System.out.println("%s".formatted(response));
 
     log.info("========================================");
     log.info("prompt: {}", prompt);
@@ -87,5 +96,17 @@ public class AkkaIoChat {
 
   interface ChatService {
     String chat(String prompt);
+  }
+
+  static String formatNanoTime(long nanoSeconds) {
+    long hours = TimeUnit.NANOSECONDS.toHours(nanoSeconds);
+    nanoSeconds -= TimeUnit.HOURS.toNanos(hours);
+    long minutes = TimeUnit.NANOSECONDS.toMinutes(nanoSeconds);
+    nanoSeconds -= TimeUnit.MINUTES.toNanos(minutes);
+    long seconds = TimeUnit.NANOSECONDS.toSeconds(nanoSeconds);
+    nanoSeconds -= TimeUnit.SECONDS.toNanos(seconds);
+    long milliseconds = TimeUnit.NANOSECONDS.toMillis(nanoSeconds);
+
+    return String.format("%d:%02d:%02d:%03dms", hours, minutes, seconds, milliseconds);
   }
 }

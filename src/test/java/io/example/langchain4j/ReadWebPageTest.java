@@ -27,7 +27,8 @@ public class ReadWebPageTest {
 
   @Test
   void readWebPageTest() throws IOException {
-    var url = "https://akka.io";
+    var hostname = "akka.io";
+    var url = "https://%s".formatted(hostname);
     var webPage = Jsoup.connect(url).get();
 
     assertNotNull(webPage);
@@ -35,7 +36,7 @@ public class ReadWebPageTest {
     var links = webPage.select("a[href]");
     var akkaIoLinks = links.stream()
         .map(link -> link.attr("abs:href"))
-        .filter(link -> link.contains("akka.io"))
+        .filter(link -> link.contains(hostname))
         .map(link -> link.replace("language=scala", "language=java"))
         .toList();
     assertTrue(akkaIoLinks.size() > 0);

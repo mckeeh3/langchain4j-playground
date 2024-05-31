@@ -22,6 +22,7 @@ import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 
 public class AkkaIoWebCrawler {
   static final Logger log = LoggerFactory.getLogger(AkkaIoWebCrawler.class);
+  static final String hostname = "akka.io";
   final Set<String> crawledPages = new HashSet<String>();
   final EmbeddingStoreIngestor ingestor;
   Queue<String> pagesToCrawl = new LinkedList<>();
@@ -33,7 +34,7 @@ public class AkkaIoWebCrawler {
   long startTime = System.nanoTime();
 
   public static void main(String[] args) {
-    var url = "https://akka.io";
+    var url = "https://%s".formatted(hostname);
 
     var crawler = new AkkaIoWebCrawler(ingestor());
     crawler.crawl(url);
@@ -111,13 +112,13 @@ public class AkkaIoWebCrawler {
     var links = webPage.select("a[href]");
     return links.stream()
         .map(link -> link.attr("abs:href"))
-        .filter(link -> link.contains("akka.io"))
+        .filter(link -> link.contains(hostname))
         .map(link -> link.replace("language=scala", "language=java"))
         .map(link -> link.split("#")[0])
         .toList();
   }
 
-  public String formatNanoTime(long nanoSeconds) {
+  static String formatNanoTime(long nanoSeconds) {
     long hours = TimeUnit.NANOSECONDS.toHours(nanoSeconds);
     nanoSeconds -= TimeUnit.HOURS.toNanos(hours);
     long minutes = TimeUnit.NANOSECONDS.toMinutes(nanoSeconds);

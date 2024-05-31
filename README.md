@@ -1,5 +1,17 @@
 # langchain4j-playground
+
 Playing around with LangChain4J
+
+## Running a vector database locally
+
+See the instructions for installing Chroma database locally.
+
+Once installed, run the database providing a path to a
+directory that will contain database files.
+
+~~~bat
+chroma run --path <path-to-chroma-db-directory>
+~~~
 
 ## Crawling Akka.io and loading to vector database
 
@@ -16,7 +28,7 @@ mvn exec:java -Dexec.mainClass="io.example.langchain4j.AkkaIoWebCrawler"
 
 The AkkaIoChat.java utility is a RAG app that takes
 prompts, queries the vector database for relevant
-web content, then builds an augmented prompt. 
+web content, then builds an augmented prompt.
 The augmented prompt is then sent to Chat-GPT-4o.
 
 Use the following to run the Akka.io chat:
