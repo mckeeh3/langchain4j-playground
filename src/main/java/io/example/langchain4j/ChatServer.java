@@ -31,22 +31,23 @@ public class ChatServer {
   static final Logger log = LoggerFactory.getLogger(ChatServer.class);
   static final int port = 8080;
 
-  final ChromaEmbeddingStore embeddingStore = ChromaEmbeddingStore.builder()
-      .baseUrl("http://localhost:8000")
-      .collectionName("akka-io-page")
-      .build();
+  // final ChromaEmbeddingStore embeddingStore = ChromaEmbeddingStore.builder()
+  // .baseUrl("http://localhost:8000")
+  // .collectionName("akka-io-page")
+  // .build();
 
-  final EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();
+  // final EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();
 
-  final ChatLanguageModel modelChat = OpenAiChatModel.builder()
-      .apiKey(ApiKeys.openAiApiKey)
-      .modelName("gpt-4o")
-      .logRequests(true)
-      .logResponses(true)
-      .temperature(0.5)
-      .build();
+  // final ChatLanguageModel modelChat = OpenAiChatModel.builder()
+  // .apiKey(ApiKeys.openAiApiKey)
+  // .modelName("gpt-4o")
+  // .logRequests(true)
+  // .logResponses(true)
+  // .temperature(0.5)
+  // .build();
 
-  final ChatService chatService = AiServices.create(ChatService.class, modelChat);
+  // final ChatService chatService = AiServices.create(ChatService.class,
+  // modelChat);
 
   interface ChatService {
     String chat(String prompt);

@@ -24,7 +24,7 @@ Use the following to run the crawler:
 mvn exec:java -Dexec.mainClass="io.example.langchain4j.AkkaIoWebCrawler"
 ~~~
 
-## Chatting with Akka.io
+## Chatting with Akka.io CLI
 
 The AkkaIoChat.java utility is a RAG app that takes
 prompts, queries the vector database for relevant
@@ -33,6 +33,18 @@ The augmented prompt is then sent to Chat-GPT-4o.
 
 Use the following to run the Akka.io chat:
 
-~~~java
-mvn  exec:java -Dexec.mainClass="io.example.langchain4j.AkkaIoChat"
+~~~bash
+mvn exec:java -Dexec.mainClass="io.example.langchain4j.AkkaIoChat"
 ~~~
+
+## Chatting with Akka.io web UI
+
+As with the above CLI, there is a web UI that you can use to chat with Akka.
+
+Use the following command to run the web server:
+
+~~~bash
+mvn exec:java -Dexec.mainClass="io.example.langchain4j.ChatServer"
+~~~
+
+The server runs on [port 8080](http://localhost:8080).

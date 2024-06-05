@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat Page</title>
+    <title>Chat With Akka</title>
     <style>
       body {
         background-color: #212121;
@@ -13,15 +13,15 @@
         padding: 0;
         display: flex;
         flex-direction: column;
-        height: 100vh;
         align-items: center;
+        overflow-y: auto;
       }
       #chat-container {
         flex: 1;
-        overflow-y: auto;
-        padding: 10px;
         width: 60%;
         box-sizing: border-box;
+        padding-top: 10px;
+        padding-bottom: 70px; /* Adjusted to ensure space for input-container */
       }
       #input-container {
         background-color: #2f2f2f;
@@ -44,7 +44,7 @@
         line-height: 1.5;
       }
       .message-box {
-        background-color: #2f2f2f;
+        background-color: #0f0f0f;
         margin: 10px 0;
         padding: 10px;
         border-radius: 5px;
@@ -62,7 +62,7 @@
   <body>
     <div id="chat-container"></div>
     <div id="input-container">
-      <textarea id="input-field" rows="1" placeholder="Type your message here..."></textarea>
+      <textarea id="input-field" rows="1" placeholder="Enter your prompt..."></textarea>
     </div>
     <script>
       const inputField = document.getElementById('input-field');
@@ -90,7 +90,7 @@
         messageBox.className = 'message-box';
         messageBox.textContent = text;
         chatContainer.appendChild(messageBox);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        window.scrollTo(0, document.body.scrollHeight);
 
         fetch('/api/chat', {
           method: 'POST',
@@ -105,7 +105,7 @@
             responseBox.className = 'response-box';
             responseBox.innerHTML = htmlText;
             chatContainer.appendChild(responseBox);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            window.scrollTo(0, document.body.scrollHeight);
           })
           .catch((error) => {
             console.error('Error:', error);
