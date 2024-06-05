@@ -1,6 +1,12 @@
-# langchain4j-playground
+# Playing around with LangChain4J
 
-Playing around with LangChain4J
+This repo contains various apps and unit tests that explore the LangChain4J library.
+
+The apps focus mainly on loading web pages into a vector database. The database
+is then used for exploring how to use vector databases to augment prompts that
+are then sent to an AI for generated responses.
+
+The unit tests explore different LangChain4J features.
 
 ## Running a vector database locally
 
@@ -23,6 +29,12 @@ Use the following to run the crawler:
 ~~~bash
 mvn exec:java -Dexec.mainClass="io.example.langchain4j.AkkaIoWebCrawler"
 ~~~
+
+This app crawls all of the akka.io web pages. The web page content is embedded in a vector
+database.
+
+In a recent test, it took about 9 hours to crawl ~192K akka.io web pages. The vector database
+grew to about 8.4G.
 
 ## Chatting with Akka.io CLI
 
