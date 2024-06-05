@@ -64,6 +64,13 @@
             <version>1.19.8</version>
         </dependency>
 
+        <!-- Markdown to HTML conversion -->
+        <dependency>
+            <groupId>org.commonmark</groupId>
+            <artifactId>commonmark</artifactId>
+            <version>0.22.0</version>
+        </dependency>
+
         <!-- For local environment settings -->
         <dependency>
             <groupId>io.github.cdimascio</groupId>

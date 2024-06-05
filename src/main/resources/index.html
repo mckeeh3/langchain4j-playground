@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Page</title>
+    <style>
+      body {
+        background-color: #212121;
+        color: white;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        align-items: center;
+      }
+      #chat-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+        width: 60%;
+        box-sizing: border-box;
+      }
+      #input-container {
+        background-color: #2f2f2f;
+        width: 60%;
+        padding: 10px;
+        box-sizing: border-box;
+        position: fixed;
+        bottom: 0;
+      }
+      #input-field {
+        width: 100%;
+        background-color: #2f2f2f;
+        color: white;
+        border: none;
+        outline: none;
+        resize: none;
+        padding: 10px;
+        box-sizing: border-box;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      .message-box {
+        background-color: #2f2f2f;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      .response-box {
+        background-color: #212121;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chat-container"></div>
+    <div id="input-container">
+      <textarea id="input-field" rows="1" placeholder="Type your message here..."></textarea>
+    </div>
+    <script>
+      const inputField = document.getElementById('input-field');
+      const chatContainer = document.getElementById('chat-container');
+
+      inputField.addEventListener('input', () => {
+        inputField.style.height = 'auto';
+        inputField.style.height = inputField.scrollHeight + 'px';
+      });
+
+      inputField.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          const text = inputField.value.trim();
+          if (text) {
+            sendMessage(text);
+            inputField.value = '';
+            inputField.style.height = 'auto';
+          }
+        }
+      });
+
+      function sendMessage(text) {
+        const messageBox = document.createElement('div');
+        messageBox.className = 'message-box';
+        messageBox.textContent = text;
+        chatContainer.appendChild(messageBox);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: text }),
+        })
+          .then((response) => response.text())
+          .then((htmlText) => {
+            const responseBox = document.createElement('div');
+            responseBox.className = 'response-box';
+            responseBox.innerHTML = htmlText;
+            chatContainer.appendChild(responseBox);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+      }
+    </script>
+  </body>
+</html>
