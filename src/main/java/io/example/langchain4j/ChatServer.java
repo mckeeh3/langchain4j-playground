@@ -7,6 +7,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -19,35 +22,19 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.AllMiniLmL6V2EmbeddingModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
+import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 
 public class ChatServer {
   static final Logger log = LoggerFactory.getLogger(ChatServer.class);
   static final int port = 8080;
-
-  // final ChromaEmbeddingStore embeddingStore = ChromaEmbeddingStore.builder()
-  // .baseUrl("http://localhost:8000")
-  // .collectionName("akka-io-page")
-  // .build();
-
-  // final EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();
-
-  // final ChatLanguageModel modelChat = OpenAiChatModel.builder()
-  // .apiKey(ApiKeys.openAiApiKey)
-  // .modelName("gpt-4o")
-  // .logRequests(true)
-  // .logResponses(true)
-  // .temperature(0.5)
-  // .build();
-
-  // final ChatService chatService = AiServices.create(ChatService.class,
-  // modelChat);
 
   interface ChatService {
     String chat(String prompt);
@@ -90,7 +77,6 @@ public class ChatServer {
     }
 
     String generateResponse(String message) {
-      // Process the message and generate a Markdown response
       var markdownResponse = chat.prompt(message);
 
       // Convert the Markdown response to HTML
@@ -181,7 +167,8 @@ public class ChatServer {
           .maxResults(5)
           .build();
       var relevant = embeddingStore.search(query).matches();
-      System.out.println("\nVector DB response: %s".formatted(formatNanoTime(System.nanoTime() - start)));
+
+      log.info("Vector DB response: {}", formatNanoTime(System.nanoTime() - start));
       relevant.forEach(match -> {
         System.out.println("%1.3f, %s".formatted(match.score(), match.embedded().metadata().getString("title")));
       });
@@ -190,20 +177,21 @@ public class ChatServer {
       var promptAugmented = new StringBuffer();
       promptAugmented.append("""
           Please review the following reference material to help
-          you to answer the prompt at the end of this request:\n\n""");
+          you to answer this prompt:\n\n""")
+          .append(prompt)
+          .append("\n\n")
+          .append("References:\n\n");
+
       relevant.forEach(match -> promptAugmented
           .append("Title: ")
           .append(match.embedded().metadata().getString("title"))
           .append("\n\n")
           .append(match.embedded().text())
           .append("\n\n"));
-      promptAugmented.append(prompt);
 
       start = System.nanoTime();
       var response = chatService.chat(promptAugmented.toString());
-      System.out.println("\nChat response: %s\n".formatted(formatNanoTime(System.nanoTime() - start)));
-
-      System.out.println("%s".formatted(response));
+      log.info("Chat response: {}", formatNanoTime(System.nanoTime() - start));
 
       log.info("========================================");
       log.info("prompt: {}", prompt);
@@ -214,8 +202,27 @@ public class ChatServer {
       log.info("========================================");
       log.info("response: {}", response);
 
-      return response;
+      return responseWithReferences(relevant, response);
     }
+  }
+
+  static String responseWithReferences(List<EmbeddingMatch<TextSegment>> relevant, String response) {
+    var responseWithReferences = new StringBuffer(response);
+    responseWithReferences.append("\n\nReferences:\n");
+    references(relevant)
+        .forEach(
+            (url, title) -> responseWithReferences.append("\n[%s](%s)</br>".formatted(title, url)));
+
+    return responseWithReferences.toString();
+  }
+
+  static Map<String, String> references(List<EmbeddingMatch<TextSegment>> relevant) {
+    var references = new HashMap<String, String>();
+    relevant.forEach(match -> {
+      var metadata = match.embedded().metadata();
+      references.put(metadata.getString("url"), metadata.getString("title"));
+    });
+    return references;
   }
 
   static String formatNanoTime(long nanoSeconds) {

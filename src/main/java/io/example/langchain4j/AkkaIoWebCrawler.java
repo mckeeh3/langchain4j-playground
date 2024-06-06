@@ -113,6 +113,7 @@ public class AkkaIoWebCrawler {
     return links.stream()
         .map(link -> link.attr("abs:href"))
         .filter(link -> link.contains(hostname))
+        .filter(link -> !link.contains("doc.akka.io") || link.contains("/current/"))
         .map(link -> link.replace("language=scala", "language=java"))
         .map(link -> link.split("#")[0])
         .toList();
