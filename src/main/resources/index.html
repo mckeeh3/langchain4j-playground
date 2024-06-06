@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat With Akka</title>
+    <title>Chat Page</title>
     <style>
       body {
         background-color: #212121;
@@ -15,6 +15,7 @@
         flex-direction: column;
         align-items: center;
         overflow-y: auto;
+        height: 100vh;
       }
       #chat-container {
         flex: 1;
@@ -65,12 +66,29 @@
       a:visited {
         color: #ccc;
       }
+      .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+        margin: 10px auto;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     </style>
   </head>
   <body>
     <div id="chat-container"></div>
     <div id="input-container">
-      <textarea id="input-field" rows="1" placeholder="Enter your prompt..."></textarea>
+      <textarea id="input-field" rows="1" placeholder="Type your message here..."></textarea>
     </div>
     <script>
       const inputField = document.getElementById('input-field');
@@ -98,6 +116,10 @@
         messageBox.className = 'message-box';
         messageBox.textContent = text;
         chatContainer.appendChild(messageBox);
+
+        const spinner = document.createElement('div');
+        spinner.className = 'loading-spinner';
+        chatContainer.appendChild(spinner);
         window.scrollTo(0, document.body.scrollHeight);
 
         fetch('/api/chat', {
@@ -109,6 +131,7 @@
         })
           .then((response) => response.text())
           .then((htmlText) => {
+            chatContainer.removeChild(spinner);
             const responseBox = document.createElement('div');
             responseBox.className = 'response-box';
             responseBox.innerHTML = htmlText;
@@ -117,6 +140,7 @@
           })
           .catch((error) => {
             console.error('Error:', error);
+            chatContainer.removeChild(spinner);
           });
       }
     </script>
