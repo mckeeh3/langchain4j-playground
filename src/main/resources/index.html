@@ -83,6 +83,17 @@
           transform: rotate(360deg);
         }
       }
+      #clear-button {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px;
+        cursor: pointer;
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+      }
       .hljs {
         background: #0f0f0f;
       }
@@ -96,10 +107,21 @@
     <div id="chat-container"></div>
     <div id="input-container">
       <textarea id="input-field" rows="1" placeholder="Type your message here..."></textarea>
+      <button id="clear-button">Clear Chat</button>
     </div>
     <script>
       const inputField = document.getElementById('input-field');
       const chatContainer = document.getElementById('chat-container');
+      const clearButton = document.getElementById('clear-button');
+
+      window.onload = () => {
+        const chatHistory = localStorage.getItem('chatHistory');
+        if (chatHistory) {
+          chatContainer.innerHTML = chatHistory;
+          PR.prettyPrint(); // Apply prettify to the loaded content
+          window.scrollTo(0, document.body.scrollHeight);
+        }
+      };
 
       inputField.addEventListener('input', () => {
         inputField.style.height = 'auto';
@@ -145,12 +167,22 @@
             chatContainer.appendChild(responseBox);
             window.scrollTo(0, document.body.scrollHeight);
             hljs.highlightAll();
+            saveChatHistory();
           })
           .catch((error) => {
             console.error('Error:', error);
             chatContainer.removeChild(spinner);
           });
       }
+
+      function saveChatHistory() {
+        localStorage.setItem('chatHistory', chatContainer.innerHTML);
+      }
+
+      clearButton.addEventListener('click', () => {
+        localStorage.removeItem('chatHistory');
+        chatContainer.innerHTML = '';
+      });
     </script>
   </body>
 </html>
