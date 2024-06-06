@@ -83,7 +83,14 @@
           transform: rotate(360deg);
         }
       }
+      .hljs {
+        background: #0f0f0f;
+      }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/scala.min.js"></script>
   </head>
   <body>
     <div id="chat-container"></div>
@@ -137,6 +144,7 @@
             responseBox.innerHTML = htmlText;
             chatContainer.appendChild(responseBox);
             window.scrollTo(0, document.body.scrollHeight);
+            hljs.highlightAll();
           })
           .catch((error) => {
             console.error('Error:', error);
