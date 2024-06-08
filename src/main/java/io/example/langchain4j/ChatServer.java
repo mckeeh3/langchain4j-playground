@@ -15,6 +15,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,9 +71,6 @@ public class ChatServer {
     }
 
     String extractMessage(String requestBody) {
-      // Extract the "message" field from the JSON request body
-      // You can use a JSON parsing library like Gson or Jackson for more robust
-      // parsing
       var message = requestBody.substring(requestBody.indexOf(":") + 2, requestBody.lastIndexOf("\""));
       return message;
     }
@@ -85,7 +84,7 @@ public class ChatServer {
       var renderer = HtmlRenderer.builder().build();
       var htmlResponse = renderer.render(document);
 
-      return htmlResponse;
+      return enhanceCodeBlocks(htmlResponse);
     }
 
     void sendResponse(HttpExchange exchange, String response) throws IOException {
@@ -235,5 +234,28 @@ public class ChatServer {
     long milliseconds = TimeUnit.NANOSECONDS.toMillis(nanoSeconds);
 
     return String.format("%d:%02d:%02d:%03dms", hours, minutes, seconds, milliseconds);
+  }
+
+  public static String enhanceCodeBlocks(String html) {
+    var doc = Jsoup.parse(html);
+    var codeBlocks = doc.select("pre > code[class^=language-]");
+
+    for (Element codeBlock : codeBlocks) {
+      String languageClass = codeBlock.className();
+      String language = languageClass.replace("language-", "").toUpperCase();
+
+      Element preElement = codeBlock.parent();
+      preElement.before(createHeader(language));
+      preElement.attr("style", "position: relative;");
+    }
+
+    return doc.body().html();
+  }
+
+  private static String createHeader(String language) {
+    return "<div class='code-header'>"
+        + "<span>" + language + "</span>"
+        + "<button class='copy-button' onclick=\"copyCode(this)\">Copy</button>"
+        + "</div>";
   }
 }

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat Page</title>
+    <title>Chat With Akka</title>
     <style>
       body {
         background-color: #212121;
@@ -94,6 +94,40 @@
         bottom: 10px;
         right: 10px;
       }
+      pre {
+        margin: 0 0 1em 0;
+      }
+      pre code {
+        background-color: #2f2f2f;
+        padding: 10px;
+        border-radius: 5px;
+        overflow: auto;
+        position: relative;
+      }
+      .code-header {
+        display: flex;
+        justify-content: space-between;
+        background-color: #414141;
+        padding: 5px 10px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        color: white;
+      }
+      .code-header span {
+        display: inline-block;
+        height: 30px;
+        line-height: 30px;
+        vertical-align: middle;
+        font-size: small;
+      }
+      .copy-button {
+        background-color: #176d19;
+        border: none;
+        color: white;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 3px;
+      }
       .hljs {
         background: #0f0f0f;
       }
@@ -183,6 +217,19 @@
         localStorage.removeItem('chatHistory');
         chatContainer.innerHTML = '';
       });
+
+      function copyCode(button) {
+        const codeBlock = button.parentElement.nextSibling.nextSibling;
+        copyTextToClipboard(codeBlock.textContent);
+      }
+
+      async function copyTextToClipboard(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch (err) {
+          console.error('Failed to copy text: ', err);
+        }
+      }
     </script>
   </body>
 </html>
