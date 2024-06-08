@@ -222,18 +222,16 @@
         const codeBlock = button.parentElement.nextSibling.nextSibling;
         copyTextToClipboard(codeBlock.textContent);
 
-        // Change the button text and color to indicate success
         const originalText = button.innerText;
         const originalColor = button.style.backgroundColor;
 
         button.innerText = 'Copied';
         button.style.backgroundColor = '#c46207';
 
-        // Revert the text and color after a short delay
         setTimeout(() => {
           button.innerText = originalText;
           button.style.backgroundColor = originalColor;
-        }, 2000); // Change back after 2 seconds
+        }, 2000);
       }
 
       async function copyTextToClipboard(text) {
