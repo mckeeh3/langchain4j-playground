@@ -163,9 +163,13 @@ public class ChatServer {
       var queryEmbedding = embeddingModel.embed(prompt).content();
       var query = EmbeddingSearchRequest.builder()
           .queryEmbedding(queryEmbedding)
-          .maxResults(5)
+          .maxResults(10)
           .build();
-      var relevant = embeddingStore.search(query).matches();
+      var relevant = embeddingStore.search(query)
+          .matches()
+          .stream()
+          .filter(match -> match.score() > 0.7)
+          .toList();
 
       log.info("Vector DB response: {}", formatNanoTime(System.nanoTime() - start));
       relevant.forEach(match -> {
@@ -175,11 +179,10 @@ public class ChatServer {
       start = System.nanoTime();
       var promptAugmented = new StringBuffer();
       promptAugmented.append("""
-          Please review the following reference material to help
-          you to answer this prompt:\n\n""")
-          .append(prompt)
-          .append("\n\n")
-          .append("References:\n\n");
+          You are an Akka expert.
+          Your task is to provide detailed and accurate answers based on the provided Akka documentation
+          in addition to your Akka expertise.\n\n
+          Here is some context from the documentation:\n\n""");
 
       relevant.forEach(match -> promptAugmented
           .append("Title: ")
@@ -187,6 +190,10 @@ public class ChatServer {
           .append("\n\n")
           .append(match.embedded().text())
           .append("\n\n"));
+
+      promptAugmented
+          .append("The user asked: %s\n\n".formatted(prompt))
+          .append("Provide a step-by-step explanation and include code examples if applicable.");
 
       start = System.nanoTime();
       var response = chatService.chat(promptAugmented.toString());

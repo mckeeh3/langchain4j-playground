@@ -44,6 +44,16 @@
         font-size: 16px;
         line-height: 1.5;
       }
+      .message-container {
+        display: flex;
+        align-items: center;
+        margin: 10px 0;
+      }
+      .message-icon {
+        width: 24px;
+        height: 24px;
+        margin-right: 10px;
+      }
       .message-box {
         background-color: #0f0f0f;
         margin: 10px 0;
@@ -175,10 +185,24 @@
       });
 
       function sendMessage(text) {
+        const messageContainer = document.createElement('div');
+        messageContainer.className = 'message-container';
+
+        const messageIcon = document.createElement('img');
+        messageIcon.src = '/user-input-icon.png';
+        messageIcon.className = 'message-icon';
+        messageContainer.appendChild(messageIcon);
+
         const messageBox = document.createElement('div');
         messageBox.className = 'message-box';
         messageBox.textContent = text;
-        chatContainer.appendChild(messageBox);
+        messageContainer.appendChild(messageBox);
+
+        chatContainer.appendChild(messageContainer);
+        // const messageBox = document.createElement('div');
+        // messageBox.className = 'message-box';
+        // messageBox.textContent = text;
+        // chatContainer.appendChild(messageBox);
 
         const spinner = document.createElement('div');
         spinner.className = 'loading-spinner';
