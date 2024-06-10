@@ -20,14 +20,14 @@ import dev.langchain4j.model.openai.OpenAiTokenizer;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 
-public class AkkaIoWebCrawler {
-  static final Logger log = LoggerFactory.getLogger(AkkaIoWebCrawler.class);
-  static final String hostname = "akka.io";
+public class KalixIoWebCrawler {
+  static final Logger log = LoggerFactory.getLogger(KalixIoWebCrawler.class);
+  static final String hostname = "kalix.io";
   final Set<String> crawledPages = new HashSet<String>();
   final EmbeddingStoreIngestor ingestor;
   Queue<String> pagesToCrawl = new LinkedList<>();
 
-  public AkkaIoWebCrawler(EmbeddingStoreIngestor ingestor) {
+  public KalixIoWebCrawler(EmbeddingStoreIngestor ingestor) {
     this.ingestor = ingestor;
   }
 
@@ -36,7 +36,7 @@ public class AkkaIoWebCrawler {
   public static void main(String[] args) {
     var url = "https://%s".formatted(hostname);
 
-    var crawler = new AkkaIoWebCrawler(ingestor());
+    var crawler = new KalixIoWebCrawler(ingestor());
     crawler.crawl(url);
   }
 
@@ -62,7 +62,9 @@ public class AkkaIoWebCrawler {
       var start = System.nanoTime();
       var webPage = Jsoup.connect(url).get();
 
-      ingestor.ingest(toDocument(url, webPage));
+      if (!webPage.text().isBlank()) {
+        ingestor.ingest(toDocument(url, webPage));
+      }
 
       crawledPages.add(url);
       log.info("Crawled %,d pages of %,d queued".formatted(crawledPages.size(), pagesToCrawl.size()));
@@ -93,7 +95,7 @@ public class AkkaIoWebCrawler {
   static EmbeddingStoreIngestor ingestor() {
     var embeddingStore = ChromaEmbeddingStore.builder()
         .baseUrl("http://localhost:8000")
-        .collectionName("akka-io-page")
+        .collectionName("kalix-io-page")
         .build();
 
     var embeddingModel = new AllMiniLmL6V2EmbeddingModel();
@@ -113,8 +115,6 @@ public class AkkaIoWebCrawler {
     return links.stream()
         .map(link -> link.attr("abs:href"))
         .filter(link -> link.contains(hostname))
-        .filter(link -> !link.contains("doc.akka.io") || link.contains("/current/"))
-        .map(link -> link.replace("language=scala", "language=java"))
         .map(link -> link.split("#")[0])
         .toList();
   }

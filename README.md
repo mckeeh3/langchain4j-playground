@@ -19,6 +19,8 @@ directory that will contain database files.
 chroma run --path <path-to-chroma-db-directory>
 ~~~
 
+**Note:** be sure to run the correct vector database server for the Akka or Kalix web pages.
+
 ## Crawling Akka.io and loading to vector database
 
 The AkkaIoCrawler.java crawls the Akka.io web site.
@@ -33,8 +35,19 @@ mvn exec:java -Dexec.mainClass="io.example.langchain4j.AkkaIoWebCrawler"
 This app crawls all of the akka.io web pages. The web page content is embedded in a vector
 database.
 
-In a recent test, it took about 9 hours to crawl ~192K akka.io web pages. The vector database
-grew to about 8.4G.
+## Crawling Kalix.io and loading to vector database
+
+The KalixIoCrawler.java crawls the Kalix.io web site.
+Web pages are loaded into a vector database.
+
+Use the following to run the crawler:
+
+~~~bash
+mvn exec:java -Dexec.mainClass="io.example.langchain4j.KalixIoWebCrawler"
+~~~
+
+This app crawls all of the kalix.io web pages. The web page content is embedded in a vector
+database.
 
 ## Chatting with Akka.io CLI
 
@@ -57,6 +70,18 @@ Use the following command to run the web server:
 
 ~~~bash
 mvn exec:java -Dexec.mainClass="io.example.langchain4j.ChatServer"
+~~~
+
+Provide the following command line argTo run using `Akka` doc type. Default is `akka`.
+
+~~~bash
+mvn exec:java -Dexec.mainClass="io.example.langchain4j.ChatServer" -Dexec.args="akka"
+~~~
+
+Provide the following command line argTo run using `Kalix` doc type.
+
+~~~bash
+mvn exec:java -Dexec.mainClass="io.example.langchain4j.ChatServer" -Dexec.args="kalix"
 ~~~
 
 The server runs on [port 8080](http://localhost:8080).

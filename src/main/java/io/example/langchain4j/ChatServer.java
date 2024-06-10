@@ -37,12 +37,21 @@ import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 public class ChatServer {
   static final Logger log = LoggerFactory.getLogger(ChatServer.class);
   static final int port = 8080;
+  static String docType;
 
   interface ChatService {
     String chat(String prompt);
   }
 
   public static void main(String[] args) throws IOException {
+    docType = args.length == 0
+        ? "akka"
+        : args[0].toLowerCase();
+
+    if (!List.of("akka", "kalix").contains(docType)) {
+      throw new IllegalArgumentException("Invalid docType: %s".formatted(docType));
+    }
+
     var server = HttpServer.create(new InetSocketAddress(port), 0);
     server.createContext("/", new StaticFileHandler());
     server.createContext("/api/chat", new ChatHandler());
@@ -143,7 +152,7 @@ public class ChatServer {
   static class Chat {
     final ChromaEmbeddingStore embeddingStore = ChromaEmbeddingStore.builder()
         .baseUrl("http://localhost:8000")
-        .collectionName("akka-io-page")
+        .collectionName("%s-io-page".formatted(docType))
         .build();
 
     final EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();
@@ -178,11 +187,13 @@ public class ChatServer {
 
       start = System.nanoTime();
       var promptAugmented = new StringBuffer();
+      var docTypeCapitalize = docType.substring(0, 1).toUpperCase() + docType.substring(1);
       promptAugmented.append("""
-          You are an Akka expert.
-          Your task is to provide detailed and accurate answers based on the provided Akka documentation
-          in addition to your Akka expertise.\n\n
-          Here is some context from the documentation:\n\n""");
+          You are an %s expert.
+          Your task is to provide detailed and accurate answers based on the provided %s documentation
+          in addition to your %s expertise.\n\n
+          Here is some context from the documentation:\n\n""".formatted(docTypeCapitalize, docTypeCapitalize,
+          docTypeCapitalize));
 
       relevant.forEach(match -> promptAugmented
           .append("Title: ")
